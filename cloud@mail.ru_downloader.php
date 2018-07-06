@@ -1,8 +1,9 @@
+#/bin/php
 <?php
   $links_file = "links.txt";
   $storage_path = "downloads";
 
-  $file4aria = "input.txt";
+  $file4aria = "output.json";
   $aria2c = "aria2c";
   $current_dir = dirname(__FILE__);
 
@@ -21,21 +22,26 @@
     $id = "";
     if($files = GetAllFiles($link))
     {
-      foreach ($files as $file)
+      //file_put_contents($file4aria, json_encode($files, JSON_PRETTY_PRINT));
+
+      foreach ($files as $key => $file)
       {
         $line = $file->download_link . PHP_EOL;
         $line .= "  out=" . $file->output . PHP_EOL;
         $line .= "  referer=" . $link . PHP_EOL;
+        $files[$key]->referer = $link;
         $line .= "  dir=" . $storage_path . PHP_EOL;
 
-        file_put_contents($file4aria, $line, FILE_APPEND);
+        //file_put_contents($file4aria, $line, FILE_APPEND);
       }
+      file_put_contents($file4aria, json_encode($files, JSON_PRETTY_PRINT));
+
     }
   }
 
   echo "Running Aria2c for download..." . PHP_EOL;
-  StartDownload();
-  @unlink($file4aria);
+  //StartDownload();
+  //@unlink($file4aria);
 
   echo "Done!" . PHP_EOL;
 
@@ -47,6 +53,7 @@
     public $output = "";
     public $link = "";
     public $download_link = "";
+    public $referer = "";
 
     function __construct($name, $output, $link, $download_link)
     {
